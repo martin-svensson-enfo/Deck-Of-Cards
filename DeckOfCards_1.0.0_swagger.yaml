@@ -1,0 +1,367 @@
+openapi: 3.0.0
+servers:
+# Added by API Auto Mocking Plugin
+
+  - url: https://deckofcardsapi.com/api
+    description: |
+      Main (production) server
+info:
+  description: This describes the Deck of Cards API
+  version: "1.0.0"
+  title: Deck of Cards an API
+  contact:
+    email: martin.svensson@enfo.se
+paths:
+  /deck/new/shuffle/:
+    get:
+      summary: Shuffle
+      operationId: Shuffle
+      description: |
+        Shuffle deck
+      parameters:
+        - in: query
+          name: deck_count
+          description: define the number of Decks you want to use. Blackjack typically uses 6 decks. The default is 1.
+          required: false
+          schema:
+           type: integer
+        - in: query
+          name: cards
+          description: |
+            If you want to use a partial deck, then you can pass the card codes you want to use using the cards parameter. Separate the card codes with commas, and each card code is a just a two character case-insensitive string
+            The value, one of A (for an ace), 2, 3, 4, 5, 6, 7, 8, 9,(for a ten), J (jack), Q (queen), or K (king); The suit, one of S (Spades), D (Diamonds), C (Clubs), or H (Hearts). In this example, we are asking for a deck consisting of all the aces, twos, and kings.
+          required: false
+          schema:
+           type: string
+           #Should be comma separarated list of card codes
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+  /deck/{deck_id}/shuffle/:
+    get:
+      summary: Reshuffle
+      operationId: Reshuffle
+      description: |
+        Don't throw away a deck when all you want to do is shuffle. Include the deck_id on your call to shuffle your cards. Don't worry about reminding us how many decks you are playing with.
+      parameters:
+        - in: path
+          name: deck_id
+          description: |
+            Be sure to replace deck_id with a valid deck_id. We use the deck_id as an identifier so we know who is playing with what deck. After two weeks, if no actions have been made on the deck then we throw it away.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+  /deck/{deck_id}/draw/:
+    get:
+      summary: Draw
+      operationId: Draw
+      description: |
+        Draws cards from a Deck
+      parameters: 
+        - in: query
+          name: count
+          description: |
+            The count variable defines how many cards to draw from the deck.
+          required: false
+          schema:
+            type: integer
+        - in: path
+          name: deck_id
+          description: |
+            Be sure to replace deck_id with a valid deck_id. We use the deck_id as an identifier so we know who is playing with what deck. After two weeks, if no actions have been made on the deck then we throw it away.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DrawResponse'
+  /deck/new/:
+    get:
+        summary: Open new Deck
+        operationId: Open
+        description: |
+          Open a brand new deck of cards. 
+          A-spades, 2-spades, 3-spades... followed by diamonds, clubs,
+          then hearts.
+        responses:
+          '200':
+            description: Ok
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Deck'
+  /deck/{deck_id}/pile/{pile_name}/add:
+   get:
+        summary: Add to Pile
+        operationId: AddToPile
+        description: |
+         Piles can be used for discarding, players hands, or whatever else. Piles are created on the fly, just give a pile a name and add a drawn card to the pile. If the pile didn't exist before, it does now. After a card has been drawn from the deck it can be moved from pile to pile. Note - This will not work with multiple decks.
+        parameters: 
+          - in: path
+            name: pile_name
+            description: |
+              The variable defines the name of the pile.
+            required: true
+            schema:
+              type: string
+          - in: path
+            name: deck_id
+            description: |
+              Be sure to replace deck_id with a valid deck_id. We use the deck_id as an identifier so we know who is playing with what deck. After two weeks, if no actions have been made on the deck then we throw it away.
+            required: true
+            schema:
+              type: string
+          - in: query
+            name: cards
+            description: |
+              If you want to use a partial deck, then you can pass the card codes you want to use using the cards parameter. Separate the card codes with commas, and each card code is a just a two character case-insensitive string
+              The value, one of A (for an ace), 2, 3, 4, 5, 6, 7, 8, 9,(for a ten), J (jack), Q (queen), or K (king); The suit, one of S (Spades), D (Diamonds), C (Clubs), or H (Hearts)
+            required: false
+            schema:
+             type: string
+        responses:
+          '200':
+            description: Ok
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PileResponse'
+  /deck/{deck_id}/pile/{pile_name}/shuffle:
+   get:
+        summary: Shuffle a Pile
+        operationId: ShufflePile
+        description: |
+        parameters: 
+          - in: path
+            name: pile_name
+            description: |
+              The variable defines the name of the pile.
+            required: true
+            schema:
+              type: string
+          - in: path
+            name: deck_id
+            description: |
+              Be sure to replace deck_id with a valid deck_id. We use the deck_id as an identifier so we know who is playing with what deck. After two weeks, if no actions have been made on the deck then we throw it away.
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Ok
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PileResponse'
+  /deck/{deck_id}/pile/{pile_name}/list:
+   get:
+        summary: Listing Cards in Pile
+        operationId: ListCardsinPile
+        description: |
+        parameters: 
+          - in: path
+            name: pile_name
+            description: |
+              The variable defines the name of the pile.
+            required: true
+            schema:
+              type: string
+          - in: path
+            name: deck_id
+            description: |
+              Be sure to replace deck_id with a valid deck_id. We use the deck_id as an identifier so we know who is playing with what deck. After two weeks, if no actions have been made on the deck then we throw it away.
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Ok
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PileResponse'            
+  /deck/{deck_id}/pile/{pile_name}/draw:
+   get:
+        summary: Draw Cards from the top of a Pile
+        operationId: DrawFromPile
+        description: |
+          Draws from the top of the pile
+        parameters: 
+          - in: path
+            name: pile_name
+            description: |
+              The variable defines the name of the pile.
+            required: true
+            schema:
+              type: string
+          - in: path
+            name: deck_id
+            description: |
+              Be sure to replace deck_id with a valid deck_id. We use the deck_id as an identifier so we know who is playing with what deck. After two weeks, if no actions have been made on the deck then we throw it away.
+            required: true
+            schema:
+              type: string
+          - in: query
+            name: count
+            description: |
+              The count variable defines how many cards to draw from the deck.
+            required: false
+            schema:
+              type: integer
+          - in: query
+            name: cards
+            description: |
+              Pass the card codes you want to use using the cards parameter. Separate the card codes with commas, and each card code is a just a two character case-insensitive string
+              The value, one of A (for an ace), 2, 3, 4, 5, 6, 7, 8, 9,(for a ten), J (jack), Q (queen), or K (king); The suit, one of S (Spades), D (Diamonds), C (Clubs), or H (Hearts)
+            required: false
+            schema:
+             type: string
+        responses:
+          '200':
+            description: Ok
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PileResponse'
+  /deck/{deck_id}/pile/{pile_name}/draw/bottom:
+   get:
+        summary: Draw Cards from the bottom of a Pile
+        operationId: DrawFromBottomOfPile
+        description: |
+          Draws from the bottom of the Pile
+        parameters: 
+          - in: path
+            name: pile_name
+            description: |
+              The variable defines the name of the pile.
+            required: true
+            schema:
+              type: string
+          - in: path
+            name: deck_id
+            description: |
+              Be sure to replace deck_id with a valid deck_id. We use the deck_id as an identifier so we know who is playing with what deck. After two weeks, if no actions have been made on the deck then we throw it away.
+            required: true
+            schema:
+              type: string
+          - in: query
+            name: count
+            description: |
+              The count variable defines how many cards to draw from the deck.
+            required: false
+            schema:
+              type: integer
+          - in: query
+            name: cards
+            description: |
+              Pass the card codes you want to use using the cards parameter. Separate the card codes with commas, and each card code is a just a two character case-insensitive string
+              The value, one of A (for an ace), 2, 3, 4, 5, 6, 7, 8, 9,(for a ten), J (jack), Q (queen), or K (king); The suit, one of S (Spades), D (Diamonds), C (Clubs), or H (Hearts)
+            required: false
+            schema:
+             type: string
+        responses:
+          '200':
+            description: Ok
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PileResponse'           
+components:
+  schemas:
+    Deck:
+      properties:
+        success:
+          type: boolean
+        deck_id:
+          type: string
+        shuffled:
+          type: boolean
+        remaining:
+          type: integer
+      # Both properties are required
+      required:  
+        - success
+        - deck_id
+        - remaining
+    Card:
+      properties:
+        image:
+          type: string
+        value:
+          type: string
+          enum:
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - JACK
+            - QUEEN
+            - KING
+            - ACE
+        suit:
+          type: string
+          enum:
+            - HEARTS
+            - SPADES
+            - CLUBS
+            - DIAMONDS
+        code: 
+          type: string
+      required:
+        - image
+        - value
+        - suit
+        - code
+    Pile:
+      properties:
+        name:
+          type: string
+        remaining:
+          type: integer
+        cards:
+          type: array
+          items:
+             $ref: '#/components/schemas/Card'
+      required:
+        - name
+        - remaining
+    DrawResponse:
+      allOf:
+        - $ref: '#/components/schemas/Deck'
+        - type: object
+          required:
+            - cards
+          properties:
+            cards:
+              type: array
+              items: 
+                $ref: '#/components/schemas/Card'
+    PileResponse:
+      allOf:
+        - $ref: '#/components/schemas/Deck'
+        - type: object
+          properties:
+            piles:
+              type: array
+              items: 
+                $ref: '#/components/schemas/Pile'
